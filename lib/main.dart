@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 Future<void> main() async {
   // firebase
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
