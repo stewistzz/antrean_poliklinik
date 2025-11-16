@@ -11,23 +11,21 @@ class AntreanService {
       case "POLI_GIGI":
         return "B";
       default:
-        return "X"; // fallback
+        return "X";
     }
   }
 
-  // fungsi generate nomor antrean
+  // ========================================================================
+  // 1. GENERATE NOMOR ANTREAN (menunggu)
+  // ========================================================================
   Future<String> generateNomorAntrean(
     String layananId,
     String pasienUid,
   ) async {
     final prefix = getPrefix(layananId);
 
-    final counterRef = db.child(
-      "counter_antrean/$layananId",
-    ); // untuk mengetahui counter antrian
+    final counterRef = db.child("counter_antrean/$layananId");
 
-    // menambahkan transaction agar antrean terlindungi dari simultaneous request untuk menghindari nomor dobel, locat atauapun ketika pasien bersama2 mengambil nomor antrean
-    // Gunakan transaction agar aman dari simultaneous request
     final transactionResult = await counterRef.runTransaction((currentValue) {
       int newValue = (currentValue as int? ?? 0) + 1;
       return Transaction.success(newValue);
@@ -40,7 +38,6 @@ class AntreanService {
     final nomorUrut = (transactionResult.snapshot.value ?? 0) as int;
     final nomorAntrean = "$prefix${nomorUrut.toString().padLeft(3, '0')}";
 
-    // Simpan data antrean
     final antreanRef = db.child("antrean/$layananId/$nomorAntrean");
 
     await antreanRef.set({
@@ -57,14 +54,15 @@ class AntreanService {
     return nomorAntrean;
   }
 
-  // fungsi pemanggilan antrean
+  // ========================================================================
+  // 2. PANGGIL ANTREAN BERIKUTNYA (menunggu → dilayani)
+  // ========================================================================
   Future<Map<String, dynamic>?> panggilAntreanBerikutnya(
     String layananId,
     String loketId,
   ) async {
     final antreanRef = db.child("antrean/$layananId");
 
-    // Ambil antrean dengan status menunggu
     final snapshot = await antreanRef
         .orderByChild("status")
         .equalTo("menunggu")
@@ -76,13 +74,11 @@ class AntreanService {
       return null;
     }
 
-    // Ambil key nomor antreannya
     final nomorAntrean = snapshot.children.first.key!;
     final data = Map<String, dynamic>.from(
       snapshot.children.first.value as Map,
     );
 
-    // Update status jadi dilayani
     await antreanRef.child(nomorAntrean).update({
       "loket_id": loketId,
       "status": "dilayani",
@@ -92,6 +88,77 @@ class AntreanService {
     return {"nomor": nomorAntrean, "data": data};
   }
 
-  // selesai
-  // batalkan
+  // ========================================================================
+  // 3. AMBIL ANTREAN YANG SEDANG DILAYANI
+  // ========================================================================
+  Future<String?> getSedangDilayani(String layananId) async {
+    final antreanRef = db.child("antrean/$layananId");
+
+    final snapshot = await antreanRef
+        .orderByChild("status")
+        .equalTo("dilayani")
+        .limitToFirst(1)
+        .get();
+
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    return snapshot.children.first.key;
+  }
+
+  // ========================================================================
+  // 4. SELESAIKAN ANTREAN (dilayani → selesai)
+  // ========================================================================
+  Future<bool> selesaikanAntrean(
+    String layananId,
+    String nomorAntrean,
+  ) async {
+    final antreanRef = db.child("antrean/$layananId/$nomorAntrean");
+
+    final snapshot = await antreanRef.get();
+
+    if (!snapshot.exists) {
+      print("Antrean tidak ditemukan");
+      return false;
+    }
+
+    final data = snapshot.value as Map;
+    if (data["status"] != "dilayani") {
+      print("Antrean belum dipanggil, tidak bisa diselesaikan.");
+      return false;
+    }
+
+    await antreanRef.update({
+      "status": "selesai",
+      "waktu_selesai": DateTime.now().toIso8601String(),
+    });
+
+    print("Antrean $nomorAntrean selesai.");
+    return true;
+  }
+
+  // ========================================================================
+  // 5. BATALKAN ANTREAN (opsional)
+  // ========================================================================
+  Future<bool> batalkanAntrean(
+    String layananId,
+    String nomorAntrean,
+  ) async {
+    final antreanRef = db.child("antrean/$layananId/$nomorAntrean");
+
+    final snapshot = await antreanRef.get();
+
+    if (!snapshot.exists) {
+      print("Antrean tidak ditemukan");
+      return false;
+    }
+
+    await antreanRef.update({
+      "status": "dibatalkan",
+    });
+
+    print("Antrean $nomorAntrean dibatalkan.");
+    return true;
+  }
 }
