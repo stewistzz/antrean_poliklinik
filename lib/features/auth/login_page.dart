@@ -1,4 +1,5 @@
 import 'package:antrean_poliklinik/features/auth/welcome_page.dart';
+import 'package:antrean_poliklinik/features/home/homepage.dart';
 import 'package:antrean_poliklinik/features/caller/caller_page.dart';
 import 'package:antrean_poliklinik/features/caller/pasien_page.dart';
 import 'package:flutter/material.dart';
@@ -128,75 +129,66 @@ class _LoginScreenState extends State<LoginScreen> {
   // -------------------------------------------------------
   // CEK ROLE PETUGAS / USER
   // -------------------------------------------------------
-  void checkRole(String email) async {
-    final refPetugas = FirebaseDatabase.instance.ref("petugas");
-    final refPasien = FirebaseDatabase.instance.ref("pasien");
+void checkRole(String email) async {
+  final refPetugas = FirebaseDatabase.instance.ref("petugas");
+  final refPasien = FirebaseDatabase.instance.ref("pasien");
 
-    // ===============================
-    // CEK ROLE PETUGAS
-    // ===============================
-    final snapPetugas = await refPetugas.get();
+  // ===============================
+  // CEK ROLE PETUGAS
+  // ===============================
+  final snapPetugas = await refPetugas.get();
 
-    if (snapPetugas.exists) {
-      Map dataPetugas = snapPetugas.value as Map;
+  if (snapPetugas.exists) {
+    Map dataPetugas = snapPetugas.value as Map;
 
-      for (var value in dataPetugas.values) {
-        if (value['email'] == email) {
-          // LOGIN PETUGAS
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CallerPage(
-                uid: value['uid'],
-                nama: value['nama'],
-                loketID: value['loket_id'],
-                password: null,
-              ),
+    for (var value in dataPetugas.values) {
+      if (value['email'] == email) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CallerPage(
+              uid: value['uid'],
+              nama: value['nama'],
+              loketID: value['loket_id'],
+              password: null,
             ),
-          );
-          return;
-        }
+          ),
+        );
+        return;
       }
     }
-
-    // ===============================
-    // CEK ROLE PASIEN
-    // ===============================
-    final snapPasien = await refPasien.get();
-
-    if (snapPasien.exists) {
-      Map dataPasien = snapPasien.value as Map;
-
-      for (var value in dataPasien.values) {
-        if (value['email'] == email) {
-          // LOGIN PASIEN
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PasienPage(
-                uid: value['uid'],
-                nama: value['nama'],
-                email: value['email'],
-                nik: value['nik'],
-                noHP: value['no_hp'],
-                alamat: value['alamat'],
-                tanggalLahir: value['tanggal_lahir'],
-              ),
-            ),
-          );
-          return;
-        }
-      }
-    }
-
-    // ===============================
-    // TIDAK DITEMUKAN DI PETUGAS/PASIEN
-    // ===============================
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-    );
   }
+
+  // ===============================
+  // CEK ROLE PASIEN
+  // ===============================
+  final snapPasien = await refPasien.get();
+
+  if (snapPasien.exists) {
+    Map dataPasien = snapPasien.value as Map;
+
+    for (var value in dataPasien.values) {
+      if (value['email'] == email) {
+        // KIRIM DATA PASIEN KE HOMEPAGE
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => HomePage(userData: value),
+          ),
+        );
+        return;
+      }
+    }
+  }
+
+  // ===============================
+  // JIKA TIDAK DITEMUKAN
+  // ===============================
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+  );
+}
 
   // -------------------------------------------------------
   // UI LOGIN
