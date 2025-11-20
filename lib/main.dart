@@ -1,3 +1,4 @@
+import 'package:antrean_poliklinik/features/auth/welcome_page.dart';
 import 'package:antrean_poliklinik/features/caller/controllers/caller_controller.dart';
 import 'package:antrean_poliklinik/features/kios/controllers/kios_controller.dart';
 import 'package:antrean_poliklinik/firebase_options.dart';
@@ -11,42 +12,27 @@ Future<void> main() async {
   final kios = KiosController();
   final caller = CallerController();
 
-  // TESTING UNTUK MENGUJI KODE KEDALAM FIREBASE STATUS SELESAI
-  // print("=== STEP 1: AMBIL NOMOR ===");
-  // final nomor = await kios.ambilNomor("POLI_UMUM", "A003");
-  // print("Nomor yang diambil pasien = $nomor");
+   runApp(const MyApp());
+}
 
-  // print("=== STEP 2: PANGGIL NOMOR ===");
-  // await caller.panggil("POLI_UMUM", "LOKET_01");
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  // print("=== STEP 3: CEK YANG SEDANG DILAYANI ===");
-  // final sedang = await caller.getSedangDilayani("POLI_UMUM");
-  // print("Sedang dilayani: $sedang");
+// This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+return MaterialApp(
+  title: 'Antrean Poliklinik',
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+  ),
 
-  // print("=== STEP 4: SELESAIKAN ===");
-  // if (sedang != null) {
-  //   await caller.selesaikan("POLI_UMUM", sedang);
-  // } else {
-  //   print("Tidak ada antrean yang sedang dilayani.");
-  // }
+  initialRoute: '/welcome',
 
-  // TESTING UNTUK MENGUJI KODE KEDALAM FIREBASE STATUS DIBATALKAN
-  print("=== STEP 1: AMBIL NOMOR ===");
-  final nomor = await kios.ambilNomor("POLI_UMUM", "A005");
-  print("Nomor yang diambil pasien = $nomor");
-
-  print("=== STEP 2: PANGGIL NOMOR ===");
-  await caller.panggil("POLI_UMUM", "LOKET_01");
-
-  print("=== STEP 3: CEK YANG SEDANG DILAYANI ===");
-  final sedang = await caller.getSedangDilayani("POLI_UMUM");
-  print("Sedang dilayani: $sedang");
-
-  print("=== STEP 4: BATALKAN ===");
-  if (sedang != null) {
-    await caller.batalkan("POLI_UMUM", sedang);
-    print("Nomor $sedang berhasil dibatalkan.");
-  } else {
-    print("Tidak ada antrean yang sedang dilayani.");
+  routes: {
+    '/welcome': (_) => const WelcomeScreen(),
+    '/login': (_) => const WelcomeScreen(), // kamu boleh samakan
+  },
+);
   }
 }
