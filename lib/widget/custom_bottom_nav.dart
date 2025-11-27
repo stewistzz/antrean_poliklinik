@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
-  final Function(int) onTap;
+  final ValueChanged<int> onTap;
 
   const CustomBottomNav({
     super.key,
@@ -15,14 +15,14 @@ class CustomBottomNav extends StatelessWidget {
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.only(left: 20, right: 20, bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFF256EFF),
-          borderRadius: BorderRadius.circular(30),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(40),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 10,
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
@@ -30,24 +30,51 @@ class CustomBottomNav extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _bottomIcon(Icons.home, 0),
-            _bottomIcon(Icons.person_outline, 1),
-            _bottomIcon(Icons.calendar_today, 2),
+            _buildNavItem(Icons.home, 0),
+            _buildNavItem(Icons.person_outline, 1),
+            _buildNavItem(Icons.calendar_today, 2),
           ],
         ),
       ),
     );
   }
 
-  Widget _bottomIcon(IconData icon, int index) {
+  Widget _buildNavItem(IconData icon, int index) {
     final bool active = index == currentIndex;
 
     return GestureDetector(
+      behavior: HitTestBehavior.translucent,
       onTap: () => onTap(index),
-      child: Icon(
-        icon,
-        color: active ? Colors.black : Colors.white,
-        size: 28,
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        padding: active ? const EdgeInsets.all(10) : EdgeInsets.zero,
+        decoration: active
+            ? BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF256EFF),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF256EFF).withOpacity(0.25),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                  )
+                ],
+              )
+            : null,
+
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 200),
+          scale: active ? 1.06 : 1.0,
+          curve: Curves.easeOut,
+
+          child: Icon(
+            icon,
+            size: 28,
+            color: active ? Colors.white : const Color(0xFF256EFF),
+          ),
+        ),
       ),
     );
   }

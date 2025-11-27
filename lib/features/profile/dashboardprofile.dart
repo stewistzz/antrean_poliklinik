@@ -13,66 +13,71 @@ class DashboardProfile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
         child: Column(
           children: [
-            const Text(
-              "My Profile",
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
 
-            const SizedBox(height: 24),
-
-            Column(
+            // === FIXED PERFECT CENTERED TITLE ===
+            Stack(
+              alignment: Alignment.center,
               children: [
-                Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: userData?['foto'] != null
-                          ? NetworkImage(userData!['foto'])
-                          : const AssetImage("assets/profile.jpeg")
-                              as ImageProvider,
+                const Center(
+                  child: Text(
+                    "Profil Saya",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color(0xFF256EFF),
+                      fontWeight: FontWeight.bold,
                     ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
 
-                const SizedBox(height: 10),
-
-                Text(
-                  userData?['nama'] ?? "User",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                // invisible placeholder to keep symmetry
+                Positioned(
+                  left: 0,
+                  child: Opacity(
+                    opacity: 0,
+                    child: Icon(Icons.arrow_back_ios, size: 22),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 28),
 
-            _menuItem(Icons.person_outline, "Profile"),
-            _menuItem(Icons.settings, "Settings"),
-            _menuItem(Icons.help_outline, "Help"),
+            // === PROFILE PHOTO + NAME ===
+            Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFE6E6E6),
+                  ),
+                  child: CircleAvatar(
+                    radius: 55,
+                    backgroundImage: userData?['foto'] != null
+                        ? NetworkImage(userData!['foto'])
+                        : const AssetImage("assets/profile.jpeg")
+                            as ImageProvider,
+                  ),
+                ),
+                const SizedBox(height: 12),
 
-            _menuItem(Icons.logout, "Logout", onTap: () {
+                Text(
+                  userData?['nama'] ?? "John Doe",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 28),
+
+            // === MENU LIST ===
+            _menuItem(Icons.person_outline, "Profil"),
+            _menuItem(Icons.settings, "Pengaturan"),
+            _menuItem(Icons.help_outline, "Bantuan"),
+            _menuItem(Icons.logout, "Keluar", onTap: () {
               LogoutDialog.show(context);
             }),
           ],
@@ -81,35 +86,57 @@ class DashboardProfile extends StatelessWidget {
     );
   }
 
+  // === MENU COMPONENT WITH PRESS EFFECT (FIXED ALIGNMENT) ===
   Widget _menuItem(IconData icon, String title, {VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE5EDFF),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Icon(icon, color: Colors.blue, size: 22),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(40),
+          highlightColor: Colors.black.withOpacity(0.10),
+          splashColor: Colors.black.withOpacity(0.05),
+
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6FA8FF),
+              borderRadius: BorderRadius.circular(40),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+
+            child: Row(
+              children: [
+                Container(
+                  height: 44,
+                  width: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Icon(icon, color: const Color(0xFF0A4EFF), size: 22),
+                  ),
                 ),
-              ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                const Icon(Icons.arrow_forward_ios,
+                    size: 16, color: Colors.white),
+              ],
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
+          ),
         ),
       ),
     );
