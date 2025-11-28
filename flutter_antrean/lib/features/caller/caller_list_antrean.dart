@@ -1,17 +1,14 @@
 import 'package:antrean_poliklinik/features/caller/caller_antrean_card.dart';
 import 'package:antrean_poliklinik/features/caller/caller_antrean_detail.dart';
 import 'package:antrean_poliklinik/features/caller/models/antrean_model.dart';
-import 'package:antrean_poliklinik/features/caller/widgets/caller_list_menu.dart';
+import 'package:antrean_poliklinik/widget/caller_list_menu.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class CallerListAntrean extends StatefulWidget {
   final String layananID;
 
-  const CallerListAntrean({
-    super.key,
-    required this.layananID,
-  });
+  const CallerListAntrean({super.key, required this.layananID});
 
   @override
   State<CallerListAntrean> createState() => _CallerListAntreanState();
@@ -47,17 +44,13 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
   Future<void> _updateStatus(AntreanModel antrean, String newStatus) async {
     final pasienUID = antrean.pasienUID;
 
-    await antreanRef.child(antrean.nomor).update({
-      "status": newStatus,
-    });
+    await antreanRef.child(antrean.nomor).update({"status": newStatus});
 
     await FirebaseDatabase.instance
         .ref()
         .child("antrean_user")
         .child(pasienUID)
-        .update({
-      "status": newStatus,
-    });
+        .update({"status": newStatus});
   }
 
   /// POPUP KONFIRMASI
@@ -99,7 +92,9 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                   style: TextButton.styleFrom(
                     backgroundColor: const Color(0xFFE8EDFF),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 10),
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -121,7 +116,9 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                   style: TextButton.styleFrom(
                     backgroundColor: const Color(0xFF2B6BFF),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 10),
+                      horizontal: 24,
+                      vertical: 10,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -148,7 +145,7 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
         const Text(
           "Antrean Pasien",
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 25,
             fontWeight: FontWeight.bold,
             color: Color(0xFF2B6BFF),
           ),
@@ -210,23 +207,20 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                           confirmText: "Ya, Lanjut",
                           onConfirm: () => _updateStatus(antrean, "berjalan"),
                         );
-                      }
-
-                      else if (antrean.status == "berjalan") {
+                      } else if (antrean.status == "berjalan") {
                         _showConfirmDialog(
                           title: "Selesaikan Antrean",
                           confirmText: "Ya, Selesai",
                           onConfirm: () => _updateStatus(antrean, "selesai"),
                         );
                       }
-
                       /// === BUKA DETAIL ===
                       else if (antrean.status == "selesai") {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                            CallerDetailAntrean(antrean: antrean),
+                                CallerDetailAntrean(antrean: antrean),
                           ),
                         );
                       }

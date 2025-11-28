@@ -59,7 +59,7 @@ class CustomBottomNav extends StatelessWidget {
                     color: const Color(0xFF256EFF).withOpacity(0.25),
                     blurRadius: 10,
                     spreadRadius: 1,
-                  )
+                  ),
                 ],
               )
             : null,

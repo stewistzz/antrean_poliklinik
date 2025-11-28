@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'caller_list_antrean.dart';
 import 'caller_profile.dart';
-import 'caller_bottom_nav.dart';
+import '../../widget/caller_bottom_nav.dart';
 
 class CallerPage extends StatefulWidget {
   final String uid;
   final String nama;
-  final String loketID;   // Loket petugas, ex: LKT01/LKT02/LKT03
+  final String loketID; // Loket petugas, ex: LKT01/LKT02/LKT03
   final String email;
 
   const CallerPage({
@@ -37,24 +37,33 @@ class _CallerPageState extends State<CallerPage> {
     final layananID = loketToPoli[widget.loketID] ?? "POLI_UMUM";
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FF),
+      backgroundColor: Colors.white,
 
-      body: SafeArea(
-        child: _selectedIndex == 0
-            ? CallerListAntrean(
-                layananID: layananID,   
-              )
-            : CallerProfilePage(
-                uid: widget.uid,
-                nama: widget.nama,
-                loketID: widget.loketID,
-                email: widget.email,
+      // backgroundColor: Colors.purple,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: _selectedIndex == 0
+                ? CallerListAntrean(layananID: layananID)
+                : CallerProfilePage(
+                    uid: widget.uid,
+                    nama: widget.nama,
+                    loketID: widget.loketID,
+                    email: widget.email,
+                  ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              child: CallerBottomNav(
+                currentIndex: _selectedIndex,
+                onTap: (i) => setState(() => _selectedIndex = i),
               ),
-      ),
-
-      bottomNavigationBar: CallerBottomNav(
-        currentIndex: _selectedIndex,
-        onTap: (i) => setState(() => _selectedIndex = i),
+            ),
+          ),
+        ],
       ),
     );
   }
