@@ -32,13 +32,13 @@ class CallerProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
         child: Column(
           children: [
             const Text(
-              "My Profile",
+              "Profil Petugas",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 25,
                 color: Colors.blue,
                 fontWeight: FontWeight.bold,
               ),
