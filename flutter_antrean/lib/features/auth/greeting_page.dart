@@ -234,12 +234,10 @@ class _GreetingPageState extends State<GreetingPage>
               ),
             );
 
-        return Stack(
-          children: [
-            SlideTransition(position: slideOut, child: child),
-            SlideTransition(position: slideIn, child: child),
-          ],
-        );
+return SlideTransition(
+  position: slideIn,
+  child: child,
+);
       },
     );
   }
