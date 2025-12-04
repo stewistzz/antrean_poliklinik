@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:antrean_poliklinik/features/kios/Settings/logout.dart';
 import 'package:antrean_poliklinik/features/kios/Profile/detailProfile.dart';
-import 'package:antrean_poliklinik/features/kios/Settings/SettingProfile.dart'; 
+import 'package:antrean_poliklinik/features/kios/Settings/SettingProfile.dart';
 
 class DashboardProfile extends StatefulWidget {
   final Map? userData;
@@ -14,7 +14,7 @@ class DashboardProfile extends StatefulWidget {
 
 class _DashboardProfileState extends State<DashboardProfile> {
   late Map userData;
-  
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +70,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
                     backgroundImage: userData['foto'] != null
                         ? NetworkImage(userData['foto'])
                         : const AssetImage("assets/profile.jpeg")
-                            as ImageProvider,
+                              as ImageProvider,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -113,9 +113,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const SettingProfile(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const SettingProfile()),
                 );
               },
             ),
@@ -162,11 +160,7 @@ class _DashboardProfileState extends State<DashboardProfile> {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(
-                      icon,
-                      color: const Color(0xFF0A4EFF),
-                      size: 22,
-                    ),
+                    child: Icon(icon, color: const Color(0xFF0A4EFF), size: 22),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -180,8 +174,11 @@ class _DashboardProfileState extends State<DashboardProfile> {
                     ),
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios,
-                    size: 16, color: Colors.white),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.white,
+                ),
               ],
             ),
           ),
