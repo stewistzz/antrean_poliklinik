@@ -3,6 +3,7 @@ import 'package:antrean_poliklinik/features/caller/caller_antrean_detail.dart';
 import 'package:antrean_poliklinik/features/caller/controllers/caller_controller.dart';
 import 'package:antrean_poliklinik/features/caller/models/antrean_model.dart';
 // import 'package:antrean_poliklinik/features/caller/caller_controller.dart';
+
 import 'package:antrean_poliklinik/widget/caller_list_menu.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -169,9 +170,7 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                 setState(() => activeTab = tab);
               },
             ),
-
             const SizedBox(height: 0),
-
             /// LIST ANTREAN
             Expanded(
               child: StreamBuilder<List<AntreanModel>>(
