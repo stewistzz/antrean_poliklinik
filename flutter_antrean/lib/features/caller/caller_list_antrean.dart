@@ -1,6 +1,9 @@
 import 'package:antrean_poliklinik/features/caller/caller_antrean_card.dart';
 import 'package:antrean_poliklinik/features/caller/caller_antrean_detail.dart';
+import 'package:antrean_poliklinik/features/caller/controllers/caller_controller.dart';
 import 'package:antrean_poliklinik/features/caller/models/antrean_model.dart';
+// import 'package:antrean_poliklinik/features/caller/caller_controller.dart';
+
 import 'package:antrean_poliklinik/widget/caller_list_menu.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +146,7 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
         padding: const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 18,
-        ), // <= DIPERKECIL
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,9 +170,7 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                 setState(() => activeTab = tab);
               },
             ),
-
             const SizedBox(height: 0),
-
             /// LIST ANTREAN
             Expanded(
               child: StreamBuilder<List<AntreanModel>>(
@@ -186,17 +187,15 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 0,
-                    ), // <= HILANGKAN
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
                     itemCount: antreanList.length,
                     itemBuilder: (context, index) {
                       final antrean = antreanList[index];
 
-                      /// === PERBAIKAN TOMBOL ===
+                      /// == Tentukan teks tombol ==
                       String buttonText = "";
                       if (antrean.status == "menunggu") {
-                        buttonText = "Layani";
+                        buttonText = "Panggil";
                       } else if (antrean.status == "berjalan") {
                         buttonText = "Selesai";
                       } else if (antrean.status == "selesai") {
@@ -204,9 +203,7 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                       }
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                        ), // biar rapi
+                        padding: const EdgeInsets.symmetric(vertical: 6),
                         child: CallerAntreanCard(
                           poli: antrean.poli,
                           nomor: antrean.nomor,
@@ -214,21 +211,43 @@ class _CallerListAntreanState extends State<CallerListAntrean> {
                           status: antrean.status,
                           buttonText: buttonText,
                           onPressed: () {
+                            /// ============================
+                            ///   STATUS: MENUNGGU → DIPANGGIL
+                            /// ============================
                             if (antrean.status == "menunggu") {
                               _showConfirmDialog(
-                                title: "Layani Antrean",
-                                confirmText: "Ya, Lanjut",
-                                onConfirm: () =>
-                                    _updateStatus(antrean, "berjalan"),
+                                title: "Panggil Antrean",
+                                confirmText: "Ya, Panggil",
+                                onConfirm: () async {
+                                  // TRIGGER DISPLAY + AUDIO
+                                  await CallerController().panggilAntrian(
+                                    antrean.layananID,
+                                    antrean.nomor,
+                                    antrean.poli,
+                                  );
+
+                                  // Update status app pasien
+                                  await _updateStatus(antrean, "berjalan");
+                                },
                               );
-                            } else if (antrean.status == "berjalan") {
+                            }
+
+                            /// ============================
+                            ///   STATUS: BERJALAN → SELESAI
+                            /// ============================
+                            else if (antrean.status == "berjalan") {
                               _showConfirmDialog(
                                 title: "Selesaikan Antrean",
                                 confirmText: "Ya, Selesai",
                                 onConfirm: () =>
                                     _updateStatus(antrean, "selesai"),
                               );
-                            } else if (antrean.status == "selesai") {
+                            }
+
+                            /// ============================
+                            ///   STATUS: SELESAI → DETAIL
+                            /// ============================
+                            else if (antrean.status == "selesai") {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
