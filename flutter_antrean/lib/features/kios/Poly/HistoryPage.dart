@@ -21,53 +21,52 @@ class _HistoryPageState extends State<HistoryPage> {
     _loadHistory();
   }
 
-Future<void> _loadHistory() async {
-  try {
-    final antreanRef = FirebaseDatabase.instance.ref("antrean");
-    final snapshot = await antreanRef.get();
+  Future<void> _loadHistory() async {
+    try {
+      final antreanRef = FirebaseDatabase.instance.ref("antrean");
+      final snapshot = await antreanRef.get();
 
-    List<Map> temp = [];
+      List<Map> temp = [];
 
-    if (snapshot.exists) {
-      for (var poliNode in snapshot.children) {
-        for (var nomorNode in poliNode.children) {
-          final data = nomorNode.value as Map;
+      if (snapshot.exists) {
+        for (var poliNode in snapshot.children) {
+          for (var nomorNode in poliNode.children) {
+            final data = nomorNode.value as Map;
 
-          if (data["pasien_uid"] == uid && data["status"] == "selesai") {
-            temp.add({
-              "poli": poliNode.key.toString(),
-              "nomor": data["nomor"].toString(),
-              "deskripsi": "Pemeriksaan telah selesai.",
-            });
+            if (data["pasien_uid"] == uid && data["status"] == "selesai") {
+              temp.add({
+                "poli": poliNode.key.toString(),
+                "nomor": data["nomor"].toString(),
+                "deskripsi": "Pemeriksaan telah selesai.",
+              });
+            }
           }
         }
       }
+
+      int extractNumber(String value) {
+        // contoh: X001 → 1
+        final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+        return int.tryParse(digits) ?? 0;
+      }
+
+      temp.sort((a, b) {
+        int poliSort = a["poli"].compareTo(b["poli"]);
+        if (poliSort != 0) return poliSort;
+
+        // kalau poli sama → urutkan berdasarkan nomor antrean
+        return extractNumber(a["nomor"]).compareTo(extractNumber(b["nomor"]));
+      });
+
+      setState(() {
+        historyList = temp;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("ERROR: $e");
+      setState(() => isLoading = false);
     }
-
-
-    int extractNumber(String value) {
-      // contoh: X001 → 1
-      final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-      return int.tryParse(digits) ?? 0;
-    }
-
-    temp.sort((a, b) {
-      int poliSort = a["poli"].compareTo(b["poli"]);
-      if (poliSort != 0) return poliSort;
-
-      // kalau poli sama → urutkan berdasarkan nomor antrean
-      return extractNumber(a["nomor"]).compareTo(extractNumber(b["nomor"]));
-    });
-
-    setState(() {
-      historyList = temp;
-      isLoading = false;
-    });
-  } catch (e) {
-    print("ERROR: $e");
-    setState(() => isLoading = false);
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -76,32 +75,33 @@ Future<void> _loadHistory() async {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : historyList.isEmpty
-              ? const Center(
-                  child: Text(
-                    "Anda belum memiliki riwayat",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Column(
-                    children: historyList
-                        .map((item) => _HistoryCard(
-                              poliName: item["poli"],
-                              nomor: item["nomor"],
-                              description: item["deskripsi"],
-                            ))
-                        .toList(),
-                  ),
+          ? const Center(
+              child: Text(
+                "Anda belum memiliki riwayat",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                children: historyList
+                    .map(
+                      (item) => _HistoryCard(
+                        poliName: item["poli"],
+                        nomor: item["nomor"],
+                        description: item["deskripsi"],
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
     );
   }
 }
-
 
 class _HistoryCard extends StatelessWidget {
   final String poliName;
@@ -122,10 +122,7 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFF256EFF),
-          width: 1.6,
-        ),
+        border: Border.all(color: const Color(0xFF256EFF), width: 1.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,19 +154,12 @@ class _HistoryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.history,
-                size: 50,
-                color: Color(0xFF256EFF),
-              ),
+              const Icon(Icons.history, size: 50, color: Color(0xFF256EFF)),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
                 ),
               ),
             ],
@@ -182,11 +172,10 @@ class _HistoryCard extends StatelessWidget {
               onPressed: () {},
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 8),
-                side: const BorderSide(
-                  color: Color(0xFF256EFF),
-                  width: 1.5,
+                  horizontal: 28,
+                  vertical: 8,
                 ),
+                side: const BorderSide(color: Color(0xFF256EFF), width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),

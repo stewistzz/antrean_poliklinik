@@ -60,10 +60,7 @@ class _TabItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive ? const Color(0xFF256EFF) : Colors.white,
           borderRadius: BorderRadius.circular(40),
-          border: Border.all(
-            color: const Color(0xFF256EFF),
-            width: 1.8,
-          ),
+          border: Border.all(color: const Color(0xFF256EFF), width: 1.8),
         ),
         child: Text(
           title,
