@@ -59,9 +59,9 @@ class CustomBottomNav extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _icon(Icons.home, 0),              // kiri
-                _icon(Icons.calendar_today, 1),    // tengah
-                _icon(Icons.person_outline, 2),    // kanan
+                _icon(Icons.home, 0), // kiri
+                _icon(Icons.calendar_today, 1), // tengah
+                _icon(Icons.person_outline, 2), // kanan
               ],
             ),
           ],
