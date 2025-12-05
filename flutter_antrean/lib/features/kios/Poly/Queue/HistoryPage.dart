@@ -42,8 +42,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 "poli_id": poliId,
                 "poli_name": _formatPoliName(poliId),
                 "nomor": data["nomor"]?.toString() ?? "-",
-                "deskripsi":
-                    data["deskripsi"] ?? "Pemeriksaan telah selesai.",
+                "deskripsi": data["deskripsi"] ?? "Pemeriksaan telah selesai.",
                 "timestamp": data["timestamp"] ?? 0,
               });
             }
@@ -56,17 +55,16 @@ class _HistoryPageState extends State<HistoryPage> {
         return int.tryParse(digits) ?? 0;
       }
 
-temp.sort((a, b) {
-  // Urutkan berdasarkan nama poli
-  int poliSort = a["poli_name"].compareTo(b["poli_name"]);
-  if (poliSort != 0) return poliSort;
+      temp.sort((a, b) {
+        // Urutkan berdasarkan nama poli
+        int poliSort = a["poli_name"].compareTo(b["poli_name"]);
+        if (poliSort != 0) return poliSort;
 
-  // Jika poli sama → urutkan nomor antrean berdasarkan angka
-  int numA = extractNumber(a["nomor"]);
-  int numB = extractNumber(b["nomor"]);
-  return numA.compareTo(numB);
-});
-
+        // Jika poli sama → urutkan nomor antrean berdasarkan angka
+        int numA = extractNumber(a["nomor"]);
+        int numB = extractNumber(b["nomor"]);
+        return numA.compareTo(numB);
+      });
 
       setState(() {
         historyList = temp;
@@ -98,29 +96,28 @@ temp.sort((a, b) {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : historyList.isEmpty
-              ? const Center(
-                  child: Text(
-                    "Anda belum memiliki riwayat",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 12),
-                  child: Column(
-                    children: historyList.map((item) {
-                      return _HistoryCard(
-                        poliName: item["poli_name"],
-                        nomor: item["nomor"],
-                        description: item["deskripsi"],
-                      );
-                    }).toList(),
-                  ),
+          ? const Center(
+              child: Text(
+                "Anda belum memiliki riwayat",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.blue,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Column(
+                children: historyList.map((item) {
+                  return _HistoryCard(
+                    poliName: item["poli_name"],
+                    nomor: item["nomor"],
+                    description: item["deskripsi"],
+                  );
+                }).toList(),
+              ),
+            ),
     );
   }
 }
@@ -144,10 +141,7 @@ class _HistoryCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: Color(0xFF256EFF),
-          width: 1.6,
-        ),
+        border: Border.all(color: Color(0xFF256EFF), width: 1.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,19 +173,12 @@ class _HistoryCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(
-                Icons.history,
-                size: 50,
-                color: Color(0xFF256EFF),
-              ),
+              const Icon(Icons.history, size: 50, color: Color(0xFF256EFF)),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
                   description,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
                 ),
               ),
             ],
@@ -204,11 +191,10 @@ class _HistoryCard extends StatelessWidget {
               onPressed: () {},
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 8),
-                side: const BorderSide(
-                  color: Color(0xFF256EFF),
-                  width: 1.5,
+                  horizontal: 28,
+                  vertical: 8,
                 ),
+                side: const BorderSide(color: Color(0xFF256EFF), width: 1.5),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -228,4 +214,3 @@ class _HistoryCard extends StatelessWidget {
     );
   }
 }
-
