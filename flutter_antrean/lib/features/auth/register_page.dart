@@ -23,9 +23,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // ============================================================
-  // ALERT DIALOG SEPERTI LOGIN
+  // ALERT
   // ============================================================
-  Future<void> showAlert(String title, String message, {bool success = false}) {
+  Future<void> showAlert(String title, String message,
+      {bool success = false}) {
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -51,6 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: success ? Colors.blue.shade700 : Colors.red.shade700,
                 ),
               ),
+
               const SizedBox(height: 12),
 
               Text(
@@ -58,6 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
+
               const SizedBox(height: 20),
 
               SizedBox(
@@ -86,27 +89,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // ============================================================
-  // FUNGSI REGISTER
+  // REGISTER
   // ============================================================
   Future<void> register() async {
-    // Jalankan validasi
-    if (!(_formKey.currentState?.validate() ?? false)) {
-      return;
-    }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
-      // REGISTER AUTH
       UserCredential userCred = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
       final uid = userCred.user!.uid;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final kodePasien = "UID_U$timestamp";
 
-      // SIMPAN DATA KE DATABASE
       await FirebaseDatabase.instance.ref("pasien/$kodePasien").set({
         "nama": nameController.text.trim(),
         "email": emailController.text.trim(),
@@ -117,20 +115,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         "uid": uid,
       });
 
-      // ALERT SUKSES
       await showAlert("Berhasil", "Akun berhasil dibuat!", success: true);
 
-      Navigator.pop(context); // kembali ke login
+      Navigator.pop(context);
     } catch (e) {
       await showAlert("Gagal", e.toString());
     }
-  }
-
-  // ============================================================
-  // TOGGLE PASSWORD
-  // ============================================================
-  void _toggleObscure() {
-    setState(() => _obscure = !_obscure);
   }
 
   // ============================================================
@@ -143,18 +133,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // =========================
-            // HEADER TETAP / FIX
-            // =========================
+            // ========================= HEADER =========================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      color: Color(0xFF2B6BFF),
-                    ),
+                    icon: const Icon(Icons.arrow_back_ios,
+                        color: Color(0xFF2B6BFF)),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Expanded(
@@ -174,12 +160,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
 
-            // JARAK ANTARA HEADER DAN FORM
             const SizedBox(height: 10),
 
-            // =========================
-            // FORM SCROLLABLE
-            // =========================
+            // ========================= FORM =========================
             Expanded(
               child: SingleChildScrollView(
                 child: Padding(
@@ -189,7 +172,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // FORM INPUT
                         buildLabel("Nama Lengkap"),
                         buildField(
                           nameController,
@@ -211,7 +193,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     : Icons.visibility,
                                 color: Colors.grey.shade600,
                               ),
-                              onPressed: _toggleObscure,
+                              onPressed: () =>
+                                  setState(() => _obscure = !_obscure),
                             ),
                           ],
                         ),
@@ -224,7 +207,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           inputType: TextInputType.emailAddress,
                           validator: (v) {
                             if (v!.isEmpty) return "Email tidak boleh kosong";
-                            final emailReg = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                            final emailReg =
+                                RegExp(r'^[^@]+@[^@]+\.[^@]+$');
                             if (!emailReg.hasMatch(v))
                               return "Format email salah";
                             return null;
@@ -261,13 +245,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           phoneController,
                           "Masukkan Nomor Telepon",
                           inputType: TextInputType.phone,
-                          validator: (v) {
-                            if (v!.isEmpty) return "Nomor HP wajib diisi";
-                            if (!RegExp(r'^[0-9]+$').hasMatch(v)) {
-                              return "Nomor HP hanya angka";
-                            }
-                            return null;
-                          },
+                          validator: (v) =>
+                              v!.isEmpty ? "Nomor HP wajib diisi" : null,
                         ),
                         const SizedBox(height: 10),
 
@@ -278,41 +257,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: buildField(
                               dobController,
                               "Pilih Tanggal Lahir",
-                              validator: (v) {
-                                if (v!.isEmpty)
-                                  return "Tanggal lahir wajib diisi";
-                                final reg = RegExp(r'^\d{4}-\d{2}-\d{2}$');
-                                if (!reg.hasMatch(v))
-                                  return "Format tanggal tidak valid";
-                                return null;
-                              },
+                              validator: (v) =>
+                                  v!.isEmpty ? "Tanggal lahir wajib diisi" : null,
                             ),
                           ),
                         ),
 
                         const SizedBox(height: 10),
 
-                        // masuk
+                        // ==================== NAVIGASI KE LOGIN ====================
                         Center(
                           child: TextButton(
                             onPressed: () {
-                              Navigator.of(context).push(
-                                _slideTo(
-                                  const LoginScreen(userType: UserType.Pasien),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LoginScreen(
+                                      userType: UserType.Pasien),
                                 ),
                               );
                             },
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
+                              children: const [
+                                Text(
                                   'Sudah punya akun?',
                                   style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                  ),
+                                      color: Colors.black, fontSize: 14),
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   'Masuk',
                                   style: TextStyle(
@@ -324,26 +297,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ),
-
-                        // LINK MASUK
-                        // Center(
-                        //   child: Row(
-                        //     mainAxisAlignment: MainAxisAlignment.center,
-                        //     children: [
-                        //       const Text("Sudah punya Akun? "),
-                        //       GestureDetector(
-                        //         onTap: () => Navigator.pop(context),
-                        //         child: const Text(
-                        //           "Masuk",
-                        //           style: TextStyle(
-                        //             color: Color(0xFF2B6BFF),
-                        //             fontWeight: FontWeight.w700,
-                        //           ),
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),
@@ -353,6 +306,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
       ),
+
+      // ========================= BUTTON DAFTAR =========================
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
@@ -407,10 +362,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: const BorderSide(color: Color(0xFF256EFF)),
@@ -419,7 +372,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // logic password field
   Widget buildPasswordField() {
     return TextFormField(
       controller: passwordController,
@@ -433,10 +385,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         hintText: "Masukkan Password",
         filled: true,
         fillColor: const Color(0xFFF0F6FF),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: const BorderSide(color: Color(0xFF256EFF)),
@@ -445,7 +395,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // function untuk menambahkan pick date kalender
+  // ============================================================
+  // PICK DATE
+  // ============================================================
   Future<void> pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
@@ -470,53 +422,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     if (date != null) {
-      setState(() {
-        dobController.text =
-            "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-      });
+      dobController.text =
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
     }
-  }
-
-  // ===== FUNGSI TRANSISI SLIDE =====
-  Route _slideTo(Widget page) {
-    return PageRouteBuilder(
-      transitionDuration: const Duration(milliseconds: 550),
-      reverseTransitionDuration: const Duration(milliseconds: 450),
-      pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        // Halaman masuk
-        final slideIn =
-            Tween<Offset>(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(parent: animation, curve: Curves.easeOutQuart),
-            );
-
-        // Halaman sebelumnya geser keluar
-        final slideOut =
-            Tween<Offset>(
-              begin: Offset.zero,
-              end: const Offset(-0.25, 0.0),
-            ).animate(
-              CurvedAnimation(
-                parent: secondaryAnimation,
-                curve: Curves.easeOutQuart,
-              ),
-            );
-
-        return Stack(
-          children: [
-            SlideTransition(
-              position: slideOut,
-              child: secondaryAnimation.status != AnimationStatus.dismissed
-                  ? child
-                  : const SizedBox(),
-            ),
-            SlideTransition(position: slideIn, child: child),
-          ],
-        );
-      },
-    );
   }
 }

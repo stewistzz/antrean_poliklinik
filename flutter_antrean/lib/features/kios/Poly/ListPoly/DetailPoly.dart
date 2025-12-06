@@ -15,17 +15,22 @@ class DetailAntreanPage extends StatefulWidget {
 }
 
 class _DetailAntreanPageState extends State<DetailAntreanPage> {
+  String loketId = "-"; // <-- WAJIB disimpan
   String loketNama = "-";
   String petugasNama = "-";
   String statusLoket = "-";
 
+  @override
+  void initState() {
+    super.initState();
+    loadRealData();
+  }
+
   // ===============================================================
-  // 🔵 FETCH DATA REALTIME DARI FIREBASE
+  // 🔵 FETCH DATA LOKET + PETUGAS
   // ===============================================================
   Future<void> loadRealData() async {
     final db = FirebaseDatabase.instance.ref();
-
-    // --- Ambil data LOKET berdasarkan layanan_id (poli.id)
     final snapshotLoket = await db.child("loket").get();
 
     for (var loket in snapshotLoket.children) {
@@ -33,30 +38,22 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
 
       if (data["layanan_id"] == widget.poli.id) {
         setState(() {
+          loketId = loket.key ?? "-"; // <-- simpan ID loket (LKT01)
           loketNama = data["nama"] ?? "-";
           statusLoket = data["status"] ?? "-";
         });
 
-        // --- Ambil nama PETUGAS berdasarkan petugas_id
-        String petugasId = data["petugas_id"];
-        final petugasSnap =
-            await db.child("petugas").child(petugasId).get();
-
+        final petugasSnap = await db
+            .child("petugas")
+            .child(data["petugas_id"])
+            .get();
         if (petugasSnap.exists) {
           final petugasData = petugasSnap.value as Map;
-          setState(() {
-            petugasNama = petugasData["nama"] ?? "-";
-          });
+          setState(() => petugasNama = petugasData["nama"] ?? "-");
         }
         break;
       }
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadRealData();
   }
 
   // ===============================================================
@@ -71,42 +68,66 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
       final userRef = FirebaseDatabase.instance.ref("antrean_user/$uid");
       final cek = await userRef.get();
 
+      // ============================================================
+      // 🔵 CEK ANTREAN USER (cek status, bukan hanya exists)
+      // ============================================================
+
       if (cek.exists) {
-        showDialog(
-          context: context,
-          builder: (_) => AlertDialog(
-            title: const Text("Tidak Bisa Mendaftar"),
-            content: const Text("Anda sudah memiliki antrean aktif."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("OK"),
-              )
-            ],
-          ),
-        );
-        return;
+        final data = cek.value as Map;
+        if (data["status"] != "selesai") {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Tidak Bisa Mendaftar"),
+              content: const Text("Anda masih memiliki antrean aktif."),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+          return;
+        }
       }
 
+      // ============================================================
+      // 🔵 SUDAH SELESAI → BOLEH AMBIL NOMOR BARU
+      // ============================================================
       final controller = KiosController();
       final nomor = await controller.ambilNomor(widget.poli.id, uid);
 
-      await FirebaseDatabase.instance
-          .ref("antrean/${widget.poli.id}/$nomor")
-          .set({
+      final poliId = widget.poli.id;
+
+      // Simpan ke antrean/<poli>/<nomor>
+      await FirebaseDatabase.instance.ref("antrean/$poliId/$nomor").set({
         "nomor": nomor,
+        "layanan_id": poliId,
+        "loket_id": loketId,
         "pasien_uid": uid,
         "status": "menunggu",
         "waktu_ambil": DateTime.now().toIso8601String(),
+        "waktu_panggil": "",
+        "waktu_selesai": "",
       });
 
+      // Simpan ke antrean_user/<uid>
       await userRef.set({
         "nomor": nomor,
-        "poli_id": widget.poli.id,
+        "layanan_id": poliId,
+        "loket_id": loketId,
+        "pasien_uid": uid,
         "status": "menunggu",
+        "waktu_ambil": DateTime.now().toIso8601String(),
+        "waktu_panggil": "",
+        "waktu_selesai": "",
       });
 
-      // Popup sukses
+      // ============================================================
+      // 🔵 Popup Success
+      // ============================================================
+
       showDialog(
         context: context,
         builder: (_) => Dialog(
@@ -145,7 +166,7 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
                       style: TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -184,9 +205,7 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
         child: Column(
           children: [
-            // =====================================================
-            // 🔵 BLUE HEADER CARD
-            // =====================================================
+            // 🔵 BLUE HEADER CARD (Dengan gambar)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -196,9 +215,37 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.medical_services,
-                      size: 60, color: Colors.white),
+                  // ==== GAMBAR POLI ====
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image.network(
+                      widget.poli.gambar,
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, err, stack) => const Icon(
+                        Icons.broken_image,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                      loadingBuilder: (context, child, loading) {
+                        if (loading == null) return child;
+                        return const SizedBox(
+                          width: 70,
+                          height: 70,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
                   const SizedBox(width: 16),
+
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,13 +258,6 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Text(
-                          widget.poli.deskripsi,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 14,
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -228,7 +268,7 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
             const SizedBox(height: 22),
 
             // =====================================================
-            // 🔵 DETAIL CARD
+            // DETAIL CARD
             // =====================================================
             Container(
               width: double.infinity,
@@ -265,7 +305,7 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
             const SizedBox(height: 32),
 
             // =====================================================
-            // 🔵 BUTTON
+            // BUTTON
             // =====================================================
             SizedBox(
               width: double.infinity,
@@ -310,10 +350,7 @@ class _DetailAntreanPageState extends State<DetailAntreanPage> {
   }
 
   Widget _value(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontSize: 14),
-    );
+    return Text(text, style: const TextStyle(fontSize: 14));
   }
 
   Widget _statusChip(String status) {

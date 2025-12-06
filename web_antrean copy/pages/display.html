@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Display Antrian</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* === BLINK EFFECT === */
+        .blink {
+            animation: blinkAnim 0.4s ease-in-out 3;
+        }
+
+        @keyframes blinkAnim {
+            50% {
+                background-color: yellow;
+            }
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="display-container">
+
+    <div class="poli-grid">
+
+        <!-- POLI UMUM -->
+        <div class="poli-section" id="umum-container">
+            <div class="poli-header">
+                <i class="fas fa-user-md"></i>
+                <h2>POLI UMUM</h2>
+            </div>
+
+            <div class="antrian-row">
+                <div class="antrian-box now">
+                    <div class="antrian-label">SEKARANG</div>
+                    <div class="antrian-number" id="umum-sekarang">-</div>
+                    <div class="loket-info" id="umum-loket-sekarang">LOKET -</div>
+                </div>
+
+                <div class="antrian-box next">
+                    <div class="antrian-label">SELANJUTNYA</div>
+                    <div class="antrian-number" id="umum-selanjutnya">-</div>
+                    <div class="loket-info" id="umum-loket-selanjutnya">LOKET -</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POLI GIGI -->
+        <div class="poli-section" id="gigi-container">
+            <div class="poli-header">
+                <i class="fas fa-tooth"></i>
+                <h2>POLI GIGI</h2>
+            </div>
+
+            <div class="antrian-row">
+                <div class="antrian-box now">
+                    <div class="antrian-label">SEKARANG</div>
+                    <div class="antrian-number" id="gigi-sekarang">-</div>
+                    <div class="loket-info" id="gigi-loket-sekarang">LOKET -</div>
+                </div>
+
+                <div class="antrian-box next">
+                    <div class="antrian-label">SELANJUTNYA</div>
+                    <div class="antrian-number" id="gigi-selanjutnya">-</div>
+                    <div class="loket-info" id="gigi-loket-selanjutnya">LOKET -</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POLI ANAK -->
+        <div class="poli-section" id="anak-container">
+            <div class="poli-header">
+                <i class="fas fa-baby"></i>
+                <h2>POLI ANAK</h2>
+            </div>
+
+            <div class="antrian-row">
+                <div class="antrian-box now">
+                    <div class="antrian-label">SEKARANG</div>
+                    <div class="antrian-number" id="anak-sekarang">-</div>
+                    <div class="loket-info" id="anak-loket-sekarang">LOKET -</div>
+                </div>
+
+                <div class="antrian-box next">
+                    <div class="antrian-label">SELANJUTNYA</div>
+                    <div class="antrian-number" id="anak-selanjutnya">-</div>
+                    <div class="loket-info" id="anak-loket-selanjutnya">LOKET -</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- POLI BEDAH -->
+        <div class="poli-section" id="bedah-container">
+            <div class="poli-header">
+                <i class="fas fa-syringe"></i>
+                <h2>POLI BEDAH</h2>
+            </div>
+
+            <div class="antrian-row">
+                <div class="antrian-box now">
+                    <div class="antrian-label">SEKARANG</div>
+                    <div class="antrian-number" id="bedah-sekarang">-</div>
+                    <div class="loket-info" id="bedah-loket-sekarang">LOKET -</div>
+                </div>
+
+                <div class="antrian-box next">
+                    <div class="antrian-label">SELANJUTNYA</div>
+                    <div class="antrian-number" id="bedah-selanjutnya">-</div>
+                    <div class="loket-info" id="bedah-loket-selanjutnya">LOKET -</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="display.js"></script>
+
+</body>
+</html>
