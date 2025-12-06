@@ -10,6 +10,10 @@ class AntreanService {
         return "A";
       case "POLI_GIGI":
         return "B";
+      case "POLI_ANAK":
+        return "C";
+      case "POLI_BEDAH":
+        return "D";
       default:
         return "X";
     }
@@ -129,22 +133,6 @@ class AntreanService {
   }
 
   // 5. BATALKAN ANTREAN (opsional untuk pasien)
-  // Future<bool> batalkanAntrean(String layananId, String nomorAntrean) async {
-  //   final antreanRef = db.child("antrean/$layananId/$nomorAntrean");
-
-  //   final snapshot = await antreanRef.get();
-
-  //   if (!snapshot.exists) {
-  //     print("Antrean tidak ditemukan");
-  //     return false;
-  //   }
-
-  //   await antreanRef.update({"status": "dibatalkan"});
-
-  //   print("Antrean $nomorAntrean dibatalkan.");
-  //   return true;
-  // }
-
   Future<bool> batalkanAntrean(String layananId, String nomorAntrean) async {
     final antreanRef = db.child("antrean/$layananId/$nomorAntrean");
 

@@ -1,105 +1,126 @@
-import 'package:antrean_poliklinik/core/antrean_service.dart';
-import 'package:firebase_database/firebase_database.dart';
+// import 'package:antrean_poliklinik/core/antrean_service.dart';
+// import 'package:firebase_database/firebase_database.dart';
 
-final antreanService = AntreanService();
+// final antreanService = AntreanService();
 
-class CallerController {
-  /// ===============================
-  /// MEMANGGIL ANTREAN BERIKUTNYA
-  /// ===============================
-  Future<void> panggil(String layananId, String loketId) async {
-    try {
-      final result = await antreanService.panggilAntreanBerikutnya(
-        layananId,
-        loketId,
-      );
+// class CallerController {
+//   /// =========================================================
+//   /// PANGGIL ANTREAN BERIKUTNYA
+//   /// =========================================================
+//   Future<void> panggil(String layananId, String loketId) async {
+//     try {
+//       // PROSES RESMI dari AntreanService
+//       final result = await antreanService.panggilAntreanBerikutnya(
+//         layananId,
+//         loketId,
+//       );
 
-      if (result == null) {
-        print("Tidak ada antrean menunggu.");
-        return;
-      }
+//       if (result == null) {
+//         print("❗ Tidak ada antrean menunggu.");
+//         return;
+//       }
 
-      final nomor = result['nomor'];
-      final poli = result['poli'];
+//       final nomor = result['nomor'];
+//       final kodeLayanan = result['data']['layanan_id'];
 
-      print("Memanggil antrean: $nomor ($poli)");
+//       // MAPPING POLI
+//       final poli = _mapLayananKePoli(kodeLayanan);
 
-      // TRIGGER DISPLAY + AUDIO
-      await panggilAntrian(layananId, nomor, poli);
-    } catch (e) {
-      print("Error saat memanggil antrean: $e");
-    }
-  }
+//       if (poli == null) {
+//         print("ERROR: layanan_id $kodeLayanan tidak dikenali.");
+//         return;
+//       }
 
-  /// ===============================
-  /// TRIGGER DISPLAY UNTUK AUDIO
-  /// ===============================
-  Future<void> panggilAntrian(
-    String layananID,
-    String nomor,
-    String namaPoli,
-  ) async {
-    try {
-      // Update status antrean → dipanggil
-      await FirebaseDatabase.instance.ref("antrean/$layananID/$nomor").update({
-        "status": "dipanggil",
-      });
+//       print("Memanggil antrean: $nomor | POLI: $poli");
 
-      // Trigger display
-      await FirebaseDatabase.instance.ref("display/$layananID").set({
-        "nomor": nomor,
-        "poli": namaPoli,
-        "status": "dipanggil",
-        "timestamp": ServerValue.timestamp,
-      });
+//       // UPDATE DISPLAY
+//       await updateDisplay(nomor, poli);
+//     } catch (e) {
+//       print("Error saat memanggil antrean: $e");
+//     }
+//   }
 
-      print("Display triggered untuk nomor $nomor ($namaPoli)");
-    } catch (e) {
-      print("Error trigger display: $e");
-    }
-  }
+//   /// =========================================================
+//   /// MAPPING
+//   /// =========================================================
+//   String? _mapLayananKePoli(String kode) {
+//     switch (kode) {
+//       case "POLI_UMUM":
+//         return "UMUM";
+//       case "POLI_GIGI":
+//         return "GIGI";
+//       case "POLI_ANAK":
+//         return "ANAK";
+//       case "POLI_BEDAH":
+//         return "BEDAH";
+//       default:
+//         return null;
+//     }
+//   }
 
-  /// ===============================
-  /// AMBIL ANTREAN YANG SEDANG DILAYANI
-  /// ===============================
-  Future<String?> getSedangDilayani(String layananId) async {
-    try {
-      return await antreanService.getSedangDilayani(layananId);
-    } catch (e) {
-      print("Error getSedangDilayani: $e");
-      return null;
-    }
-  }
+//   /// =========================================================
+//   /// UPDATE DISPLAY SAJA (JANGAN UPDATE ANTREAN LAGI!)
+//   /// =========================================================
+//   Future<void> updateDisplay(String nomor, String poli) async {
+//     try {
+//       await FirebaseDatabase.instance.ref("display/$poli").set({
+//         "nomor": nomor,
+//         "poli": poli,
+//         "status": "dipanggil",
+//         "timestamp": ServerValue.timestamp,
+//       });
 
-  /// ===============================
-  /// SELESAIKAN ANTREAN
-  /// ===============================
-  Future<void> selesaikan(String layananId, String nomorAntrean) async {
-    try {
-      final success = await antreanService.selesaikanAntrean(
-        layananId,
-        nomorAntrean,
-      );
+//       print("Display updated: Layar [$poli] menampilkan $nomor");
+//     } catch (e) {
+//       print("Error update display: $e");
+//     }
+//   }
 
-      if (success) print("Antrean $nomorAntrean telah diselesaikan.");
-    } catch (e) {
-      print("Error saat menyelesaikan antrean: $e");
-    }
-  }
+//   /// =========================================================
+//   /// GET DILAYANI
+//   /// =========================================================
+//   Future<String?> getSedangDilayani(String layananId) async {
+//     try {
+//       return await antreanService.getSedangDilayani(layananId);
+//     } catch (e) {
+//       print("Error getSedangDilayani: $e");
+//       return null;
+//     }
+//   }
 
-  /// ===============================
-  /// BATALKAN ANTREAN
-  /// ===============================
-  Future<void> batalkan(String layananId, String nomorAntrean) async {
-    try {
-      final success = await antreanService.batalkanAntrean(
-        layananId,
-        nomorAntrean,
-      );
+//   /// =========================================================
+//   /// SELESAIKAN
+//   /// =========================================================
+//   Future<void> selesaikan(String layananId, String nomorAntrean) async {
+//     try {
+//       final success = await antreanService.selesaikanAntrean(
+//         layananId,
+//         nomorAntrean,
+//       );
 
-      if (success) print("Antrean $nomorAntrean telah dibatalkan.");
-    } catch (e) {
-      print("Error saat membatalkan antrean: $e");
-    }
-  }
-}
+//       if (success) {
+//         print("Antrean $nomorAntrean telah selesai.");
+//       }
+//     } catch (e) {
+//       print("Error saat menyelesaikan antrean: $e");
+//     }
+//   }
+
+//   /// =========================================================
+//   /// BATALKAN
+//   /// =========================================================
+//   Future<void> batalkan(String layananId, String nomorAntrean) async {
+//     try {
+//       final success = await antreanService.batalkanAntrean(
+//         layananId,
+//         nomorAntrean,
+//       );
+
+//       if (success) {
+//         print("Antrean $nomorAntrean telah dibatalkan.");
+//       }
+//     } catch (e) {
+//       print("Error saat membatalkan antrean: $e");
+//     }
+//   }
+// }
